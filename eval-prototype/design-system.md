@@ -27,18 +27,18 @@
 | `--color-bg` | 页面背景 |
 | `--color-surface` | 卡片、面板 |
 | `--color-text` / `--color-text-muted` | 正文 / 辅助文案 |
-| `--color-primary` (+ hover / subtle) | 规则评测主色 |
+| `--color-primary` (+ hover / subtle) | Prompt 评测主色 |
 | `--color-config` (+ hover / subtle) | 发布管理主色 |
 | `--color-success` / `--color-danger` / `--color-warning` | 状态语义 |
 | `--color-header` | 侧边栏底 |
 
 ## 信息架构（两个独立应用）
 
-**左侧边栏** 为一级入口（规则评测 | 人校评阅 | 发布管理），右侧主区为列表/详情，**非**同一详情页 Tab：
+**左侧边栏** 为一级入口（Prompt 评测 | 人校评阅 | 发布管理），右侧主区为列表/详情，**非**同一详情页 Tab：
 
 | 应用 | 列表 | 详情 |
 |------|------|------|
-| 规则评测 | `#/iter` | `#/iter/lang/{id}` |
+| Prompt 评测 | `#/iter` | `#/iter/lang/{id}` |
 | 人校评阅 | `#/review` | 一期仅占位说明页 |
 | 发布管理 | `#/config` | `#/config/lang/{id}` |
 
@@ -53,7 +53,7 @@
 
 | 组件 | 规则 |
 |------|------|
-| **主 CTA** | 每屏至多一个 `btn-primary`：迭代/配置列表=「新建语种」；迭代详情=「新建语种规则版本」 |
+| **主 CTA** | 每屏至多一个 `btn-primary`：**Prompt 评测**列表=「新建语种」（发布管理列表 **无** 新建）；Prompt 评测详情=「新建语种规则版本」 |
 | **行内操作** | `btn` / `btn-sm`，不用 `btn-primary` |
 | **破坏性** | 回滚 `btn-danger` + `showConfirmDialog` |
 | **反馈** | 校验/提示用 `showToast`（`aria-live="polite"`），不用 `alert()` |

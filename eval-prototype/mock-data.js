@@ -1,5 +1,5 @@
 /**
- * AI 译评工作台 · 一期原型 Mock（规则评测 + 发布管理）
+ * AI 译评工作台 · 一期原型 Mock（Prompt 评测 + 发布管理）
  * 对齐 PRD v1.10 / Admin v1.9 · 统一 language_id
  */
 window.EVAL_MOCK_INITIAL = {

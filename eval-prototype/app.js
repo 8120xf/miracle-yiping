@@ -548,12 +548,12 @@
       "<ul class=\"gate-rules-list\">" +
       "<li>评测任务结果的<strong>逐条/逐维</strong>详情（JSONL 工作台）</li>" +
       "<li>人工改分、改 reason、问题标记与导出</li>" +
-      "<li>与规则评测中的<strong>分析报告 / 对比报告</strong>（摘要）区分：摘要在规则评测，细阅在本模块</li>" +
+      "<li>与 Prompt 评测中的<strong>分析报告 / 对比报告</strong>（摘要）区分：摘要在 Prompt 评测，细阅在本模块</li>" +
       "</ul>" +
       '<p class="sub" style="margin-top:16px">现网能力可参考 M5 人校工作台；合并迁入路径与排期待 PRD 补充。</p>' +
       '<p style="margin-top:20px"><a class="btn btn-sm" href="' +
       esc(hrefIterList()) +
-      '">前往规则评测</a></p></div></div>'
+      '">前往 Prompt 评测</a></p></div></div>'
     );
   }
 
@@ -564,13 +564,13 @@
     side.innerHTML =
       '<div class="sidebar-brand">' +
       '<span class="sidebar-brand-title">AI 译评工作台</span>' +
-      '<span class="sidebar-brand-sub">规则评测 · 人校评阅 · 发布管理</span></div>' +
+      '<span class="sidebar-brand-sub">Prompt 评测 · 人校评阅 · 发布管理</span></div>' +
       '<nav class="sidebar-nav" aria-label="应用">' +
       '<a class="sidebar-nav-link' +
       (m === "iter" ? " is-active" : "") +
       '" href="' +
       esc(hrefIterList()) +
-      '"><span class="sidebar-nav-label">规则评测</span>' +
+      '"><span class="sidebar-nav-label">Prompt 评测</span>' +
       '<span class="sidebar-nav-desc">规则 · 评测 · 可用</span></a>' +
       '<a class="sidebar-nav-link' +
       (m === "review" ? " is-active" : "") +
@@ -593,7 +593,7 @@
               '">↗ 发布管理（本语种）</a>'
             : '<a class="sidebar-cross-link" href="' +
               esc(hrefIterLang(route.langId)) +
-              '">↗ 规则评测（本语种）</a>') +
+              '">↗ Prompt 评测（本语种）</a>') +
           "</div>"
         : "") +
       '<p class="sidebar-foot">三模块 · 双后端</p>';
@@ -739,16 +739,21 @@
       })
       .join("");
 
+    const emptyRow =
+      '<tr><td colspan="6" class="empty" style="padding:24px;text-align:center">' +
+      '暂无语种。请先在 <a href="' +
+      esc(hrefIterList()) +
+      '">Prompt 评测</a> 创建，将自动同步至本列表。</td></tr>';
+
     return (
       '<div class="page app-page app-page-config">' +
       '<div class="page-head">' +
       "<div><h1>语种管理</h1>" +
-      '<p class="lede">Prompt 版本库 · 测试 / 预发 / 正式环境发布与回滚</p></div>' +
-      '<button type="button" class="btn btn-primary" data-act="new-lang">+ 新建语种</button></div>' +
+      '<p class="lede">Prompt 版本库 · 测试 / 预发 / 正式环境发布与回滚 · 语种由 Prompt 评测创建后自动同步</p></div></div>' +
       '<div class="card card-list"><table class="simple table-list">' +
       "<thead><tr><th>语种</th><th>语对</th><th>应用阶段</th><th>已入库</th><th>负责人</th><th>操作</th></tr></thead>" +
       "<tbody>" +
-      rows +
+      (rows || emptyRow) +
       "</tbody></table></div></div>"
     );
   }
@@ -883,7 +888,7 @@
 
     const snapSection =
       snaps.length === 0
-        ? '<p class="empty" style="padding:20px">暂无已入库版本；规则评测侧「提交可应用」后将自动出现在此</p>'
+        ? '<p class="empty" style="padding:20px">暂无已入库版本；Prompt 评测侧「提交可应用」后将自动出现在此</p>'
         : '<table class="simple snap-table"><thead><tr><th>版本</th><th>来源</th><th>入库时间</th><th>操作</th></tr></thead><tbody>' +
           snapTable +
           "</tbody></table>";
@@ -1117,7 +1122,7 @@
       renderConfigModule(langId) +
       '<p class="foot-note">写规则与跑评测请前往 <a href="' +
       esc(hrefIterLang(langId)) +
-      '">规则评测 · 该语种</a></p></div>'
+      '">Prompt 评测 · 该语种</a></p></div>'
     );
   }
 
@@ -1577,9 +1582,9 @@
       if (!state.gateRules[id]) state.gateRules[id] = [];
       ensureBindings(id);
       closeModal(wrap);
-      location.hash =
-        route.module === "iter" ? hrefIterLang(id) : hrefConfigLang(id);
+      location.hash = hrefIterLang(id);
       render();
+      showToast("已创建语种，已同步至发布管理");
     };
   }
 

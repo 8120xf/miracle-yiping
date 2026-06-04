@@ -267,7 +267,7 @@ body.module-review .sidebar-nav-link.is-active {
 .app-page-config .btn-primary:hover:not(:disabled) {
   background: var(--color-config-hover);
 }
-/* 列表「新建语种」两模块同色（工作台主色） */
+/* 列表「新建语种」仅 Prompt 评测（工作台主色） */
 .btn-primary[data-act="new-lang"] {
   background: var(--color-primary);
   border-color: var(--color-primary);
