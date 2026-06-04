@@ -47,6 +47,7 @@ window.PUBLISH_MVP_INITIAL = {
       seq: 1,
       source: "manual",
       changelog: "人工 PE 基线",
+      owner: "张雨时",
       submitted_at: "2026-03-10T09:00:00Z",
       prompt_text:
         "You are a professional subtitle translator from Chinese to German.\nPreserve timing and speaker tags.\n…",
@@ -57,6 +58,7 @@ window.PUBLISH_MVP_INITIAL = {
       seq: 2,
       source: "eval_submit",
       changelog: "译评提交入库",
+      owner: "张雨时",
       submitted_at: "2026-05-20T16:45:00Z",
       prompt_text:
         "You are a senior DE translator for short drama.\nTone: emotional, concise.\n…",
@@ -67,6 +69,7 @@ window.PUBLISH_MVP_INITIAL = {
       seq: 1,
       source: "eval_submit",
       changelog: "首次译评提交",
+      owner: "张健",
       submitted_at: "2026-04-18T11:00:00Z",
       prompt_text: "Translate Chinese short drama subtitles to Spanish (ES)…",
     },

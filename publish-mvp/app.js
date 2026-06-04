@@ -154,10 +154,6 @@
   function getCurrent(langId) {
     return state.currentPublish[langId] || null;
   }
-  function seqLabel(pid) {
-    const p = getPrompt(pid);
-    return p ? fmtSeq(p.seq) : "—";
-  }
   function nextSeq(langId) {
     const items = getPrompts(langId);
     if (!items.length) return 1;
@@ -186,8 +182,6 @@
   function renderList() {
     const rows = state.languages
       .map((l) => {
-        const cur = getCurrent(l.language_id);
-        const curSeq = cur ? seqLabel(cur.prompt_id) : "—";
         return (
           '<tr class="clickable" data-go="' +
           esc(l.language_id) +
@@ -199,9 +193,6 @@
           esc(l.source_lang) +
           " → " +
           esc(l.target_lang) +
-          "</td>" +
-          "<td>" +
-          esc(curSeq) +
           "</td>" +
           "<td>" +
           esc(l.owner) +
@@ -220,10 +211,10 @@
       '<p class="lede">管理各语种的 Prompt 条目（按序号入库），手工录入后发布到<strong>当前环境</strong></p></div>' +
       '<button type="button" class="btn btn-primary" data-act="new-lang">+ 新建语种</button></div>' +
       '<div class="card"><table class="table">' +
-      "<thead><tr><th>语种</th><th>语对</th><th>当前生效序号</th><th>负责人</th><th>操作</th></tr></thead>" +
+      "<thead><tr><th>语种</th><th>语对</th><th>负责人</th><th>操作</th></tr></thead>" +
       "<tbody>" +
       (rows ||
-        '<tr><td colspan="5" class="empty">暂无语种</td></tr>') +
+        '<tr><td colspan="4" class="empty">暂无语种</td></tr>') +
       "</tbody></table></div></div>"
     );
   }
@@ -239,7 +230,6 @@
     }
 
     const cur = getCurrent(langId);
-    const st = l.status || "none";
     const snaps = getPrompts(langId);
     const curPid = cur ? cur.prompt_id : null;
     const rows = snaps
@@ -269,9 +259,9 @@
           '">查看</button>' +
           (isLive
             ? ""
-            : ' <button type="button" class="btn btn-sm btn-primary" data-act="publish" data-pid="' +
+            : ' <button type="button" class="btn btn-sm btn-publish" data-act="publish" data-pid="' +
               esc(p.prompt_id) +
-              '">发布到当前环境</button>') +
+              '">发布</button>') +
           "</td></tr>"
         );
       })
@@ -283,16 +273,7 @@
       '<div class="page-head">' +
       "<div><h1>" +
       esc(pairName(l.source_lang, l.target_lang)) +
-      ' <span class="badge badge-' +
-      esc(st) +
-      '">' +
-      esc(state.statusLabels[st] || st) +
-      "</span></h1>" +
-      '<p class="sub mono">' +
-      esc(l.language_id) +
-      " · 负责人 " +
-      esc(l.owner) +
-      "</p></div>" +
+      "</h1></div>" +
       '<button type="button" class="btn btn-primary" data-act="new-prompt">+ 新增 Prompt</button></div>' +
       '<section class="section">' +
       '<div class="section-head"><h2>Prompt 列表</h2>' +
@@ -384,7 +365,7 @@
   function showPromptModal(p) {
     const wrap = document.createElement("div");
     wrap.innerHTML =
-      '<div class="modal modal-wide">' +
+      '<div class="modal modal-wide modal-prompt">' +
       "<h3>Prompt · 序号 " +
       esc(fmtSeq(p.seq)) +
       "</h3>" +
@@ -392,6 +373,7 @@
       esc(p.changelog || "") +
       " · " +
       esc(SOURCE_LABELS[p.source] || p.source) +
+      (p.owner && p.owner !== "—" ? " · 负责人 " + esc(p.owner) : "") +
       "</p>" +
       '<pre class="prompt-pre">' +
       esc(p.prompt_text || "") +
@@ -472,18 +454,25 @@
   }
 
   function showNewPromptModal(langId) {
+    const lang = getLang(langId);
+    const defaultOwner =
+      lang && lang.owner && lang.owner !== "—" ? lang.owner : "";
     const next = nextSeq(langId);
     const wrap = document.createElement("div");
     wrap.innerHTML =
-      '<div class="modal modal-form modal-wide">' +
+      '<div class="modal modal-form modal-wide modal-prompt">' +
       "<h3>新增 Prompt</h3>" +
       '<p class="sub">入库后分配序号为 <strong>' +
       esc(String(next)) +
-      "</strong>，保存后可在列表中「发布到当前环境」</p>" +
+      "</strong>，保存后可在列表中发布</p>" +
+      '<div class="form-field"><label for="np-owner">负责人</label>' +
+      '<input type="text" id="np-owner" value="' +
+      esc(defaultOwner) +
+      '" placeholder="姓名或工号" /></div>' +
       '<div class="form-field"><label for="np-note">备注（可选）</label>' +
       '<input type="text" id="np-note" placeholder="如：应急基线、PE 粘贴" /></div>' +
       '<div class="form-field"><label for="np-body">Prompt 内容 <em>*</em></label>' +
-      '<textarea id="np-body" rows="12" placeholder="粘贴完整 Prompt 文本"></textarea></div>' +
+      '<textarea id="np-body" rows="14" placeholder="粘贴完整 Prompt 文本"></textarea></div>' +
       '<div class="modal-ft">' +
       '<button type="button" class="btn" data-x>取消</button>' +
       '<button type="button" class="btn btn-primary" data-ok>保存并入库</button></div></div>';
@@ -503,6 +492,7 @@
         seq: seq,
         source: "manual",
         changelog: $("#np-note", wrap).value.trim() || "手工录入",
+        owner: $("#np-owner", wrap).value.trim() || "—",
         submitted_at: new Date().toISOString(),
         prompt_text: body,
       });
