@@ -231,6 +231,18 @@
   function getConfigVersions(langId) {
     return (state.configVersions || []).filter((v) => v.language_id === langId);
   }
+
+  function nextConfigVersionLabel(langId) {
+    const vers = getConfigVersions(langId);
+    const nums = vers
+      .map((v) => {
+        const m = String(v.version_label || "").match(/^v(\d+)$/i);
+        return m ? parseInt(m[1], 10) : 0;
+      })
+      .filter((n) => n > 0);
+    const n = nums.length ? Math.max.apply(null, nums) + 1 : 1;
+    return "v" + n;
+  }
   function getConfigVer(id) {
     return (state.configVersions || []).find((v) => v.admin_prompt_version_id === id);
   }
@@ -796,7 +808,7 @@
       '<section class="section" id="sec-gate">' +
       '<div class="section-head"><h2 class="section-title">可用规则</h2>' +
       '<button type="button" class="btn btn-sm" data-act="add-gate">+ 添加规则</button></div>' +
-      '<p class="tool-hint">评测任务完成后，按本语种规则自动判定版本是否<strong>可用</strong>（可提交 Admin）。<strong>不预置全局默认阈值</strong>；未配置任何启用规则时，结论为 <code>pending</code>，报告仍展示维度分与共识。</p>' +
+      '<p class="tool-hint">评测任务完成后，按本语种规则自动判定版本是否<strong>可用</strong>（可提交至发布管理）。<strong>不预置全局默认阈值</strong>；未配置任何启用规则时，结论为 <code>pending</code>，报告仍展示维度分与共识。</p>' +
       '<div class="card gate-panel">' +
       (rules.length
         ? '<table class="simple gate-rules-table"><thead><tr><th>规则</th><th>比较</th><th>阈值</th><th>启用</th><th></th></tr></thead><tbody>' +
@@ -871,7 +883,13 @@
           esc(v.version_label) +
           "</strong></td>" +
           '<td><span class="badge badge-source">' +
-          esc(v.source === "eval_submit" ? "译评提交" : v.source) +
+          esc(
+            v.source === "eval_submit"
+              ? "译评提交"
+              : v.source === "manual"
+                ? "手工录入"
+                : v.source
+          ) +
           "</span></td>" +
           "<td class=\"sub\">" +
           fmtDate(v.submitted_at) +
@@ -933,9 +951,12 @@
       publishRows +
       "</tbody></table></div></section>" +
       '<section class="section">' +
+      '<div class="section-head-row">' +
       '<h2 class="section-title">已入库 Prompt 版本 <span class="sub">（' +
       snaps.length +
       " 个）</span></h2>" +
+      '<button type="button" class="btn btn-primary btn-sm" data-act="new-config-prompt">+ 新增 Prompt</button></div>' +
+      '<p class="tool-hint">手工录入为整段 Prompt 文本，不分槽位；译评「提交可应用」仍自动入库。</p>' +
       '<div class="card">' +
       snapSection +
       "</div></section>" +
@@ -1281,6 +1302,12 @@
         if (v) showConfigReportModal(v);
       });
     });
+
+    $$("#app [data-act=new-config-prompt]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        if (route.langId) showNewConfigPromptModal(route.langId);
+      });
+    });
   }
 
   function askOperator(title, fn) {
@@ -1363,14 +1390,16 @@
 
   function showConfigSnapModal(v) {
     const wrap = document.createElement("div");
-    const blocks = SLOTS.map(
-      (k) =>
-        "<p><strong>" +
-        esc(state.slotLabels[k] || k) +
-        "</strong></p><pre class=\"snap-pre\">" +
-        esc((v.blocks || {})[k] || "") +
-        "</pre>"
-    ).join("");
+    const body = v.prompt_text
+      ? '<pre class="snap-pre snap-pre-unified">' + esc(v.prompt_text) + "</pre>"
+      : SLOTS.map(
+          (k) =>
+            "<p><strong>" +
+            esc(state.slotLabels[k] || k) +
+            "</strong></p><pre class=\"snap-pre\">" +
+            esc((v.blocks || {})[k] || "") +
+            "</pre>"
+        ).join("");
     wrap.innerHTML =
       '<div class="modal modal-wide">' +
       "<h3>已入库 Prompt · " +
@@ -1378,11 +1407,63 @@
       "</h3>" +
       '<p class="sub">' +
       esc(v.changelog || "") +
+      (v.prompt_text ? " · 手工录入（整段）" : "") +
       "</p>" +
-      blocks +
+      body +
       '<div class="modal-ft"><button type="button" class="btn" data-x>关闭</button></div></div>';
     mountModal(wrap);
     wrap.querySelector("[data-x]").onclick = () => closeModal(wrap);
+  }
+
+  function showNewConfigPromptModal(langId) {
+    const l = getLang(langId);
+    if (!l) return;
+    const defaultLabel = nextConfigVersionLabel(langId);
+    const wrap = document.createElement("div");
+    wrap.innerHTML =
+      '<div class="modal modal-form modal-wide modal-dialog">' +
+      "<h3>新增 Prompt</h3>" +
+      '<p class="sub">发布管理手工录入 · 整段文本，不按 system / name_mapping / engineering 分槽</p>' +
+      '<div class="form-field"><label for="cf-label">版本号</label>' +
+      '<input type="text" id="cf-label" value="' +
+      esc(defaultLabel) +
+      '" /></div>' +
+      '<div class="form-field"><label for="cf-changelog">备注（可选）</label>' +
+      '<input type="text" id="cf-changelog" placeholder="如：应急基线、PE 粘贴" /></div>' +
+      '<div class="form-field"><label for="cf-body">Prompt 内容 <em>*</em></label>' +
+      '<textarea id="cf-body" rows="14" placeholder="粘贴完整 Prompt 文本（Markdown 或纯文本均可）"></textarea></div>' +
+      '<div class="modal-ft">' +
+      '<button type="button" class="btn" data-x>取消</button>' +
+      '<button type="button" class="btn btn-primary" data-ok>保存并入库</button></div></div>';
+    mountModal(wrap, { focusSelector: "#cf-body" });
+    wrap.querySelector("[data-x]").onclick = () => closeModal(wrap);
+    wrap.querySelector("[data-ok]").onclick = () => {
+      const label = $("#cf-label", wrap).value.trim() || defaultLabel;
+      const body = $("#cf-body", wrap).value.trim();
+      if (!body) {
+        showToast("请填写 Prompt 内容");
+        return;
+      }
+      if (!state.configVersions) state.configVersions = [];
+      const apvId = "apv-" + Date.now();
+      state.configVersions.push({
+        admin_prompt_version_id: apvId,
+        language_id: langId,
+        version_label: label,
+        source: "manual",
+        changelog: $("#cf-changelog", wrap).value.trim() || "手工录入",
+        submitted_at: new Date().toISOString(),
+        prompt_text: body,
+        blocks: { system: "", name_mapping: "", engineering: "" },
+        eval_task_id: null,
+        eval_report_id: null,
+        gate_result: null,
+        eval_prompt_version_id: null,
+      });
+      closeModal(wrap);
+      render();
+      showToast("已入库 · " + label);
+    };
   }
 
   function showConfigReportModal(v) {

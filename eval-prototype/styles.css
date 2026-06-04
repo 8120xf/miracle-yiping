@@ -402,6 +402,25 @@ body.module-review .sidebar-nav-link.is-active {
   font-size: 15px;
   font-weight: 600;
 }
+.section-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-2);
+}
+.section-head-row .section-title {
+  margin: 0;
+}
+.section-head-row + .tool-hint {
+  margin-top: 0;
+  margin-bottom: var(--space-3);
+}
+.snap-pre-unified {
+  max-height: 420px;
+  overflow: auto;
+}
 
 table.simple {
   width: 100%;
