@@ -40,7 +40,6 @@ window.PUBLISH_MVP_INITIAL = {
     },
   ],
 
-  /** 已入库 Prompt（按序号排列，同语种内唯一递增） */
   prompts: [
     {
       prompt_id: "prm-de-001",
@@ -90,7 +89,6 @@ window.PUBLISH_MVP_INITIAL = {
   newLangFormDefaults: { source_lang: "zh", target_lang: "" },
   newLangTargetPlaceholder: "请选择目标语言",
 
-  /** 当前环境生效条目（单环境） */
   currentPublish: {
     lang_de_zh: {
       prompt_id: "prm-de-002",
