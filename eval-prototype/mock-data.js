@@ -1,5 +1,5 @@
 /**
- * 语种工作台 · 一期原型 Mock（质量迭代 + 配置发布）
+ * AI 译评工作台 · 一期原型 Mock（规则评测 + 发布管理）
  * 对齐 PRD v1.10 / Admin v1.9 · 统一 language_id
  */
 window.EVAL_MOCK_INITIAL = {
@@ -40,7 +40,7 @@ window.EVAL_MOCK_INITIAL = {
     },
   ],
 
-  /** 配置发布模块 · Prompt 版本库（原 Admin versions） */
+  /** 发布管理模块 · Prompt 版本库（原 Admin versions） */
   configVersions: [
     {
       admin_prompt_version_id: "apv-de-001",

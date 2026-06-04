@@ -480,14 +480,20 @@
 
   function parseRoute() {
     const parts = (location.hash || "#/iter").slice(1).split("/").filter(Boolean);
-    const module = parts[0] === "config" ? "config" : "iter";
+    const head = parts[0];
+    const module =
+      head === "config" ? "config" : head === "review" ? "review" : "iter";
+    if (module === "review") {
+      route = { module: "review", page: "list", langId: null };
+      return;
+    }
     if (parts[1] === "lang" && parts[2]) {
       route = {
         module,
         page: "detail",
         langId: decodeURIComponent(parts[2]),
       };
-    } else if (parts[0] === "iter" || parts[0] === "config") {
+    } else if (head === "iter" || head === "config") {
       route = { module, page: "list", langId: null };
     } else {
       route = { module: "iter", page: "list", langId: null };
@@ -496,6 +502,9 @@
 
   function hrefIterList() {
     return "#/iter";
+  }
+  function hrefReviewList() {
+    return "#/review";
   }
   function hrefConfigList() {
     return "#/config";
@@ -508,8 +517,14 @@
   }
 
   function renderBackToList() {
-    const href = route.module === "config" ? hrefConfigList() : hrefIterList();
-    return '<a class="back" href="' + esc(href) + '">← 语种管理</a>';
+    const href =
+      route.module === "config"
+        ? hrefConfigList()
+        : route.module === "review"
+          ? hrefReviewList()
+          : hrefIterList();
+    const label = route.module === "review" ? "人校评阅" : "语种管理";
+    return '<a class="back" href="' + esc(href) + '">← ' + esc(label) + "</a>";
   }
   function hrefLangDetail(langId) {
     return route.module === "config"
@@ -517,7 +532,29 @@
       : hrefIterLang(langId);
   }
   function hrefList() {
-    return route.module === "config" ? hrefConfigList() : hrefIterList();
+    if (route.module === "config") return hrefConfigList();
+    if (route.module === "review") return hrefReviewList();
+    return hrefIterList();
+  }
+
+  function renderReviewPlaceholder() {
+    return (
+      '<div class="page app-page app-page-review">' +
+      '<div class="page-head">' +
+      "<div><h1>人校评阅</h1>" +
+      '<p class="lede">查看评测结果详情 · 人工 review（一期仅模块占位，功能后续迭代）</p></div></div>' +
+      '<div class="card card-placeholder" style="padding:28px 24px">' +
+      "<p>本模块规划承载：</p>" +
+      "<ul class=\"gate-rules-list\">" +
+      "<li>评测任务结果的<strong>逐条/逐维</strong>详情（JSONL 工作台）</li>" +
+      "<li>人工改分、改 reason、问题标记与导出</li>" +
+      "<li>与规则评测中的<strong>分析报告 / 对比报告</strong>（摘要）区分：摘要在规则评测，细阅在本模块</li>" +
+      "</ul>" +
+      '<p class="sub" style="margin-top:16px">现网能力可参考 M5 人校工作台；合并迁入路径与排期待 PRD 补充。</p>' +
+      '<p style="margin-top:20px"><a class="btn btn-sm" href="' +
+      esc(hrefIterList()) +
+      '">前往规则评测</a></p></div></div>'
+    );
   }
 
   function renderSidebar() {
@@ -526,37 +563,44 @@
     const m = route.module;
     side.innerHTML =
       '<div class="sidebar-brand">' +
-      '<span class="sidebar-brand-title">语种工作台</span>' +
-      '<span class="sidebar-brand-sub">AI 译配</span></div>' +
+      '<span class="sidebar-brand-title">AI 译评工作台</span>' +
+      '<span class="sidebar-brand-sub">规则评测 · 人校评阅 · 发布管理</span></div>' +
       '<nav class="sidebar-nav" aria-label="应用">' +
       '<a class="sidebar-nav-link' +
       (m === "iter" ? " is-active" : "") +
       '" href="' +
       esc(hrefIterList()) +
-      '"><span class="sidebar-nav-label">质量迭代</span>' +
+      '"><span class="sidebar-nav-label">规则评测</span>' +
       '<span class="sidebar-nav-desc">规则 · 评测 · 可用</span></a>' +
+      '<a class="sidebar-nav-link' +
+      (m === "review" ? " is-active" : "") +
+      '" href="' +
+      esc(hrefReviewList()) +
+      '"><span class="sidebar-nav-label">人校评阅</span>' +
+      '<span class="sidebar-nav-desc">详情 · 人工 review</span></a>' +
       '<a class="sidebar-nav-link' +
       (m === "config" ? " is-active" : "") +
       '" href="' +
       esc(hrefConfigList()) +
-      '"><span class="sidebar-nav-label">配置发布</span>' +
+      '"><span class="sidebar-nav-label">发布管理</span>' +
       '<span class="sidebar-nav-desc">入库 · 三环境</span></a>' +
       "</nav>" +
-      (route.page === "detail" && route.langId
+      (route.page === "detail" && route.langId && m !== "review"
         ? '<div class="sidebar-cross">' +
           (m === "iter"
             ? '<a class="sidebar-cross-link" href="' +
               esc(hrefConfigLang(route.langId)) +
-              '">↗ 配置发布（本语种）</a>'
+              '">↗ 发布管理（本语种）</a>'
             : '<a class="sidebar-cross-link" href="' +
               esc(hrefIterLang(route.langId)) +
-              '">↗ 质量迭代（本语种）</a>') +
+              '">↗ 规则评测（本语种）</a>') +
           "</div>"
         : "") +
-      '<p class="sidebar-foot">独立应用 · 双后端</p>';
+      '<p class="sidebar-foot">三模块 · 双后端</p>';
 
     document.body.classList.toggle("module-config", m === "config");
     document.body.classList.toggle("module-iter", m === "iter");
+    document.body.classList.toggle("module-review", m === "review");
   }
 
   /** 详情顶栏 · 三环境一行摘要（任意 Tab 可见） */
@@ -590,7 +634,9 @@
     if (!root) return;
     try {
       let html;
-      if (route.module === "config") {
+      if (route.module === "review") {
+        html = renderReviewPlaceholder();
+      } else if (route.module === "config") {
         html =
           route.page === "list"
             ? renderConfigList()
@@ -837,7 +883,7 @@
 
     const snapSection =
       snaps.length === 0
-        ? '<p class="empty" style="padding:20px">暂无已入库版本；质量迭代侧「提交可应用」后将自动出现在此</p>'
+        ? '<p class="empty" style="padding:20px">暂无已入库版本；规则评测侧「提交可应用」后将自动出现在此</p>'
         : '<table class="simple snap-table"><thead><tr><th>版本</th><th>来源</th><th>入库时间</th><th>操作</th></tr></thead><tbody>' +
           snapTable +
           "</tbody></table>";
@@ -1040,7 +1086,7 @@
       "</div></section>" +
       '<p class="foot-note">入库与环境发布请前往 <a href="' +
       esc(hrefConfigLang(langId)) +
-      '">配置发布 · 该语种</a></p></div>'
+      '">发布管理 · 该语种</a></p></div>'
     );
   }
 
@@ -1071,7 +1117,7 @@
       renderConfigModule(langId) +
       '<p class="foot-note">写规则与跑评测请前往 <a href="' +
       esc(hrefIterLang(langId)) +
-      '">质量迭代 · 该语种</a></p></div>'
+      '">规则评测 · 该语种</a></p></div>'
     );
   }
 
@@ -1943,7 +1989,7 @@
       "<h3>提交可应用</h3>" +
       "<p>版本 <strong>" +
       esc(p.version_label) +
-      "</strong> → 配置发布模块自动入库</p>" +
+      "</strong> → 发布管理模块自动入库</p>" +
       "<ul class=\"gate-rules-list\"><li>语种：" +
       esc(pairName(l.source_lang, l.target_lang)) +
       "</li><li>状态：" +
@@ -1982,7 +2028,7 @@
       closeModal(wrap);
       location.hash = hrefConfigLang(langId);
       render();
-      showToast("已提交可应用 · 请到配置发布查看已入库版本");
+      showToast("已提交可应用 · 请到发布管理查看已入库版本");
     };
   }
 

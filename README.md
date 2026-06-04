@@ -1,4 +1,4 @@
-# 语种工作台 · 一期（译评 + Admin）
+# AI 译评工作台 · 一期（规则评测 + 人校评阅占位 + 发布管理）
 
 ## 在线预览（GitHub Pages）
 
@@ -7,8 +7,9 @@
 | 模块 | 链接 |
 |------|------|
 | 首页（跳转） | https://8120xf.github.io/miracle-yiping/ |
-| 质量迭代 | https://8120xf.github.io/miracle-yiping/eval-prototype/index.html#/iter |
-| 配置发布 | https://8120xf.github.io/miracle-yiping/eval-prototype/index.html#/config |
+| 规则评测 | https://8120xf.github.io/miracle-yiping/eval-prototype/index.html#/iter |
+| 人校评阅（占位） | https://8120xf.github.io/miracle-yiping/eval-prototype/index.html#/review |
+| 发布管理 | https://8120xf.github.io/miracle-yiping/eval-prototype/index.html#/config |
 
 ## 本地预览
 

@@ -1,4 +1,4 @@
-# 语种工作台 · Design System（原型）
+# AI 译评工作台 · Design System（原型）
 
 > 对齐 `ui-ux-pro-max`：语义 token、8px 间距、触控 ≥44px、焦点可见。  
 > 实现：`eval-prototype/styles.css`
@@ -27,19 +27,20 @@
 | `--color-bg` | 页面背景 |
 | `--color-surface` | 卡片、面板 |
 | `--color-text` / `--color-text-muted` | 正文 / 辅助文案 |
-| `--color-primary` (+ hover / subtle) | 质量迭代主色 |
-| `--color-config` (+ hover / subtle) | 配置发布主色 |
+| `--color-primary` (+ hover / subtle) | 规则评测主色 |
+| `--color-config` (+ hover / subtle) | 发布管理主色 |
 | `--color-success` / `--color-danger` / `--color-warning` | 状态语义 |
 | `--color-header` | 侧边栏底 |
 
 ## 信息架构（两个独立应用）
 
-**左侧边栏** 为一级入口（质量迭代 | 配置发布），右侧主区为列表/详情，**非**同一详情页 Tab：
+**左侧边栏** 为一级入口（规则评测 | 人校评阅 | 发布管理），右侧主区为列表/详情，**非**同一详情页 Tab：
 
 | 应用 | 列表 | 详情 |
 |------|------|------|
-| 质量迭代 | `#/iter` | `#/iter/lang/{id}` |
-| 配置发布 | `#/config` | `#/config/lang/{id}` |
+| 规则评测 | `#/iter` | `#/iter/lang/{id}` |
+| 人校评阅 | `#/review` | 一期仅占位说明页 |
+| 发布管理 | `#/config` | `#/config/lang/{id}` |
 
 - 每屏 **一个 `h1`**：列表为「语种管理」，详情为语对名；模块上下文靠侧栏高亮。详情顶栏上方 `← 语种管理` 返回列表。  
 - **可用**：版本行 **标为可用 / 不可用**（专家人工）；报告仅分析/对比，不自动改状态。  

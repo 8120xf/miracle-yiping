@@ -31,6 +31,9 @@
   --color-config: #0d6b4c;
   --color-config-hover: #095548;
   --color-config-subtle: #ecfdf5;
+  --color-review: #7c3aed;
+  --color-review-hover: #6d28d9;
+  --color-review-subtle: #f5f3ff;
 
   --radius-sm: 4px;
   --radius-md: 6px;
@@ -154,6 +157,9 @@ body {
 body.module-config .sidebar-nav-link.is-active {
   border-left-color: var(--color-config);
 }
+body.module-review .sidebar-nav-link.is-active {
+  border-left-color: var(--color-review);
+}
 .sidebar-nav-label {
   font-size: 14px;
   font-weight: 600;
@@ -238,6 +244,9 @@ body.module-config .sidebar-nav-link.is-active {
   body.module-config .sidebar-nav-link.is-active {
     border-bottom-color: var(--color-config);
   }
+  body.module-review .sidebar-nav-link.is-active {
+    border-bottom-color: var(--color-review);
+  }
   .sidebar-foot {
     display: none;
   }
@@ -247,6 +256,9 @@ body.module-config .sidebar-nav-link.is-active {
 }
 .app-page-config {
   --app-accent: var(--color-config);
+}
+.app-page-review {
+  --app-accent: var(--color-review);
 }
 .app-page-config .btn-primary {
   background: var(--color-config);
@@ -965,7 +977,7 @@ table.simple tr.no-hover:hover td {
   padding: 14px 16px;
 }
 
-/* —— 配置发布模块（合并自 Admin prototype）—— */
+/* —— 发布管理模块（合并自 Admin prototype）—— */
 .badge-none {
   background: var(--color-surface-raised);
   color: var(--color-text-muted);
